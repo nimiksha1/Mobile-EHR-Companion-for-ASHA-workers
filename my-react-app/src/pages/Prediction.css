@@ -1,0 +1,90 @@
+.predictions-grid {
+  display: grid;
+  gap: 1.5rem;
+}
+
+.prediction-item {
+  background: white;
+  padding: 1.5rem;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+  display: flex;
+  gap: 1.5rem;
+  border-left: 5px solid;
+}
+
+.prediction-item.high {
+  border-left-color: #f56565;
+}
+
+.prediction-item.moderate {
+  border-left-color: #ed8936;
+}
+
+.prediction-item.low {
+  border-left-color: #48bb78;
+}
+
+.prediction-badge {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-width: 100px;
+}
+
+.badge-score {
+  font-size: 2rem;
+  font-weight: bold;
+  color: #2d3748;
+}
+
+.badge-level {
+  font-size: 0.9rem;
+  font-weight: 600;
+  padding: 0.25rem 0.75rem;
+  border-radius: 20px;
+  margin-top: 0.5rem;
+}
+
+.badge-level.high {
+  background: #fed7d7;
+  color: #742a2a;
+}
+
+.badge-level.moderate {
+  background: #feebc8;
+  color: #7c2d12;
+}
+
+.badge-level.low {
+  background: #c6f6d5;
+  color: #22543d;
+}
+
+.prediction-details {
+  flex: 1;
+}
+
+.prediction-time {
+  color: #718096;
+  font-size: 0.9rem;
+  margin: 0 0 0.5rem 0;
+}
+
+.prediction-recommendation {
+  color: #2d3748;
+  margin: 0;
+  line-height: 1.6;
+}
+
+@media (max-width: 768px) {
+  .prediction-item {
+    flex-direction: column;
+  }
+  
+  .prediction-badge {
+    flex-direction: row;
+    gap: 1rem;
+  }
+}
