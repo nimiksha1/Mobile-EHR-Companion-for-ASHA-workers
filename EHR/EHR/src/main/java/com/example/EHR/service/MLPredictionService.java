@@ -4,7 +4,7 @@ import java.util.List;
 
 import org.springframework.stereotype.Service;
 
-import com.example.EHR.model.MlPrediction;
+import com.example.EHR.entity.MlPrediction;
 import com.example.EHR.repository.MLPredictionRepository;
 
 import lombok.RequiredArgsConstructor;

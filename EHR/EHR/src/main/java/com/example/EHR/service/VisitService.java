@@ -5,7 +5,7 @@ import java.util.List;
 import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Service;
 
-import com.example.EHR.model.Visit;
+import com.example.EHR.entity.Visit;
 import com.example.EHR.repository.VisitRepository;
 
 import lombok.RequiredArgsConstructor;

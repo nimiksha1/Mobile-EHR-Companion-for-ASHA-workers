@@ -12,7 +12,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.example.EHR.model.Visit;
+import com.example.EHR.entity.Visit;
 import com.example.EHR.service.VisitService;
 
 import lombok.RequiredArgsConstructor;
@@ -20,7 +20,6 @@ import lombok.RequiredArgsConstructor;
 @RestController
 @RequestMapping("/api/visits")
 @RequiredArgsConstructor
-@CrossOrigin
 public class VisitController {
     private final VisitService service;
 

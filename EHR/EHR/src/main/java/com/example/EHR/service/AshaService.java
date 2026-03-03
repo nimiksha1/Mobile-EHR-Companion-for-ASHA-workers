@@ -21,6 +21,23 @@ public class AshaService {
     private final PregnancyDetailsRepository pregnancyDetailsRepository;
     private final DiabetesDetailsRepository diabetesDetailsRepository;
     
+    public List<PatientResponse> getAllPatients() {
+        List<Patient> patients = patientRepository.findAll();
+        
+        return patients.stream().map(patient -> {
+            PregnancyDetails pregnancyDetails = null;
+            DiabetesDetails diabetesDetails = null;
+            
+            if (patient.getPatientType() == Patient.PatientType.PREGNANCY) {
+                pregnancyDetails = pregnancyDetailsRepository.findByPatient(patient).orElse(null);
+            } else {
+                diabetesDetails = diabetesDetailsRepository.findByPatient(patient).orElse(null);
+            }
+            
+            return PatientResponse.fromEntity(patient, pregnancyDetails, diabetesDetails);
+        }).collect(Collectors.toList());
+    }
+    
     public List<PatientResponse> getAssignedPatients(Long ashaId) {
         User asha = userRepository.findById(ashaId)
             .orElseThrow(() -> new RuntimeException("ASHA worker not found"));

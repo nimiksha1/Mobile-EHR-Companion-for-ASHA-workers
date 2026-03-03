@@ -7,7 +7,7 @@ const Sidebar = () => {
   const location = useLocation();
 
   const ashaLinks = [
-    { path: '/dashboard', label: 'Dashboard' },
+    { path: '/asha/dashboard', label: 'Dashboard' },
     { path: '/assigned-patients', label: 'Assigned Patients' },
     { path: '/add-visit', label: 'Add Visit' },
     { path: '/prediction', label: 'Predictions' },
@@ -15,36 +15,37 @@ const Sidebar = () => {
   ];
 
   const doctorLinks = [
-    { path: '/dashboard', label: 'Dashboard' },
-    { path: '/patients', label: 'View Patients' },
+    { path: '/doctor/dashboard', label: 'Dashboard' },
     { path: '/doctor/add-patient', label: 'Add Patient' },
-    { path: '/doctor/edit-patient', label: 'Edit Patient' },
-    { path: '/reports', label: 'Health Records' },
+    { path: '/patients', label: 'View Patients' },
+    { path: '/reports', label: 'Reports' },
     { path: '/prediction', label: 'ML Predictions' }
   ];
 
   const adminLinks = [
-    { path: '/dashboard', label: 'Dashboard' },
-    { path: '/patients', label: 'Manage Users' },
+    { path: '/admin/manage-users', label: 'Manage Users' },
+    { path: '/admin/add-doctor', label: 'Add Doctor' },
+    { path: '/admin/add-asha', label: 'Add ASHA Worker' },
     { path: '/reports', label: 'Analytics' }
   ];
 
   const links = user?.role === 'ASHA' ? ashaLinks : 
-                user?.role === 'Doctor' ? doctorLinks : adminLinks;
+                user?.role === 'DOCTOR' ? doctorLinks : 
+                user?.role === 'ADMIN' ? adminLinks : [];
 
   return (
-    <aside className="sidebar">
-      <div className="sidebar-links">
+    <aside className="layout-sidebar">
+      <nav className="sidebar-nav">
         {links.map((link) => (
           <Link
             key={link.path}
             to={link.path}
             className={`sidebar-link ${location.pathname === link.path ? 'active' : ''}`}
           >
-            <span className="link-label">{link.label}</span>
+            {link.label}
           </Link>
         ))}
-      </div>
+      </nav>
     </aside>
   );
 };

@@ -10,7 +10,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.example.EHR.model.Vitals;
+import com.example.EHR.entity.Vitals;
 import com.example.EHR.service.VitalService;
 
 import lombok.RequiredArgsConstructor;

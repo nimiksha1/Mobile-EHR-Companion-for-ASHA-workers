@@ -1,52 +1,42 @@
-.manage-users-container {
-  display: flex;
-  min-height: 100vh;
-  background: #f5f7fa;
-}
-
-.manage-users-content {
-  flex: 1;
-  padding: 2rem;
-  margin-left: 250px;
-}
-
-.header {
+.page-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 2rem;
+  margin-bottom: 30px;
 }
 
-.header h1 {
-  color: #2c3e50;
-  font-size: 2rem;
+.page-header h1 {
+  color: #333;
+  font-size: 28px;
+  margin: 0;
 }
 
-.action-buttons {
+.header-actions {
   display: flex;
-  gap: 1rem;
+  gap: 12px;
 }
 
 .btn-primary {
-  background: #3498db;
+  background: #84B179;
   color: white;
   border: none;
-  padding: 0.75rem 1.5rem;
+  padding: 12px 24px;
   border-radius: 8px;
   cursor: pointer;
-  font-weight: 600;
-  transition: background 0.3s;
+  font-size: 14px;
+  font-weight: 500;
 }
 
 .btn-primary:hover {
-  background: #2980b9;
+  background: #6a9461;
 }
 
-.users-table-container {
+.table-card {
   background: white;
   border-radius: 12px;
+  padding: 20px;
   box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-  overflow: hidden;
+  overflow-x: auto;
 }
 
 .users-table {
@@ -54,61 +44,64 @@
   border-collapse: collapse;
 }
 
-.users-table thead {
-  background: #34495e;
-  color: white;
+.users-table th {
+  background: #E8F5BD;
+  color: #333;
+  padding: 15px;
+  text-align: left;
+  font-weight: 600;
+  border-bottom: 2px solid #A2CB8B;
 }
 
-.users-table th,
 .users-table td {
-  padding: 1rem;
-  text-align: left;
-  border-bottom: 1px solid #ecf0f1;
+  padding: 15px;
+  border-bottom: 1px solid #eee;
 }
 
 .users-table tbody tr:hover {
-  background: #f8f9fa;
+  background: #f9f9f9;
 }
 
 .role-badge {
-  padding: 0.25rem 0.75rem;
-  border-radius: 12px;
-  font-size: 0.85rem;
+  padding: 6px 12px;
+  border-radius: 20px;
+  font-size: 12px;
   font-weight: 600;
+  text-transform: uppercase;
 }
 
 .role-badge.admin {
-  background: #e74c3c;
-  color: white;
+  background: #FFE5E5;
+  color: #D32F2F;
 }
 
 .role-badge.doctor {
-  background: #3498db;
-  color: white;
+  background: #E3F2FD;
+  color: #1976D2;
 }
 
 .role-badge.asha {
-  background: #2ecc71;
-  color: white;
-}
-
-.users-table select {
-  padding: 0.5rem;
-  border: 1px solid #bdc3c7;
-  border-radius: 6px;
-  cursor: pointer;
+  background: #E8F5E9;
+  color: #2E7D32;
 }
 
 .btn-change {
-  background: #f39c12;
+  background: #A2CB8B;
   color: white;
   border: none;
-  padding: 0.5rem 1rem;
+  padding: 6px 16px;
   border-radius: 6px;
   cursor: pointer;
-  font-size: 0.85rem;
+  font-size: 12px;
 }
 
 .btn-change:hover {
-  background: #e67e22;
+  background: #8ab577;
+}
+
+select {
+  padding: 6px 12px;
+  border: 1px solid #ddd;
+  border-radius: 6px;
+  font-size: 14px;
 }

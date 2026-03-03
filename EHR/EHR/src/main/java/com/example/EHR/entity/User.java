@@ -8,7 +8,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import java.time.LocalDateTime;
 
 @Entity
-@Table(name = "users")
+@Table(name = "Users")
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
@@ -35,14 +35,22 @@ public class User {
     @Column(nullable = false)
     private UserRole role;
     
+    @Column(nullable = false)
+    private Boolean active = true;
+    
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "assigned_doctor_id")
     private User assignedDoctor;
     
     @Column(nullable = false, updatable = false)
-    private LocalDateTime createdDate = LocalDateTime.now();
+    private LocalDateTime createdDate;
+    
+    @PrePersist
+    protected void onCreate() {
+        createdDate = LocalDateTime.now();
+    }
     
     public enum UserRole {
-        ADMIN, DOCTOR, ASHA
+        ADMIN, DOCTOR, ASHA, PATIENT
     }
 }

@@ -9,21 +9,26 @@ export const DataProvider = ({ children }) => {
   const [unsyncedData, setUnsyncedData] = useState(0);
 
   useEffect(() => {
-    const storedPatients = JSON.parse(localStorage.getItem('patients') || '[]');
-    const storedVisits = JSON.parse(localStorage.getItem('visits') || '[]');
-    const storedPredictions = JSON.parse(localStorage.getItem('predictions') || '[]');
-    setPatients(storedPatients);
-    setVisits(storedVisits);
-    setPredictions(storedPredictions);
-    setUnsyncedData(storedPatients.length + storedVisits.length);
+    fetchPatients();
   }, []);
 
+  const fetchPatients = async () => {
+    try {
+      const token = localStorage.getItem('token');
+      if (!token) return;
+      
+      const response = await fetch('http://localhost:8080/api/doctor/patients?page=0&size=100', {
+        headers: { 'Authorization': `Bearer ${token}` }
+      });
+      const data = await response.json();
+      setPatients(data.content || []);
+    } catch (error) {
+      console.error('Error fetching patients:', error);
+    }
+  };
+
   const addPatient = (patient) => {
-    const newPatient = { ...patient, id: Date.now(), synced: false };
-    const updated = [...patients, newPatient];
-    setPatients(updated);
-    localStorage.setItem('patients', JSON.stringify(updated));
-    setUnsyncedData(prev => prev + 1);
+    setPatients(prev => [...prev, patient]);
   };
 
   const addVisit = (visit) => {
@@ -42,19 +47,14 @@ export const DataProvider = ({ children }) => {
   };
 
   const syncData = () => {
-    const syncedPatients = patients.map(p => ({ ...p, synced: true }));
-    const syncedVisits = visits.map(v => ({ ...v, synced: true }));
-    setPatients(syncedPatients);
-    setVisits(syncedVisits);
-    localStorage.setItem('patients', JSON.stringify(syncedPatients));
-    localStorage.setItem('visits', JSON.stringify(syncedVisits));
+    fetchPatients();
     setUnsyncedData(0);
   };
 
   return (
     <DataContext.Provider value={{
       patients, visits, predictions, unsyncedData,
-      addPatient, addVisit, addPrediction, syncData
+      addPatient, addVisit, addPrediction, syncData, fetchPatients
     }}>
       {children}
     </DataContext.Provider>

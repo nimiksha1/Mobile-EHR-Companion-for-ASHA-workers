@@ -18,7 +18,37 @@ public class AdminService {
     private final PasswordEncoder passwordEncoder;
     
     @Transactional
+    public UserResponseDTO addUser(CreateUserRequestDTO request) {
+        if (userRepository.findByEmail(request.getEmail()).isPresent()) {
+            throw new RuntimeException("Email already exists");
+        }
+        
+        User.UserRole role;
+        try {
+            role = User.UserRole.valueOf(request.getRole().toUpperCase());
+        } catch (IllegalArgumentException e) {
+            throw new RuntimeException("Invalid role: " + request.getRole());
+        }
+        
+        if (role == User.UserRole.ADMIN) {
+            throw new RuntimeException("Cannot create ADMIN users");
+        }
+        
+        User user = new User();
+        user.setName(request.getName());
+        user.setEmail(request.getEmail());
+        user.setPhone(request.getPhone());
+        user.setPassword(passwordEncoder.encode(request.getPassword()));
+        user.setRole(role);
+        user.setActive(true);
+        
+        User saved = userRepository.save(user);
+        return mapToDTO(saved);
+    }
+    
+    @Transactional
     public UserResponseDTO createDoctor(CreateUserRequestDTO request) {
+        System.out.println("AdminService: Checking email: " + request.getEmail());
         if (userRepository.findByEmail(request.getEmail()).isPresent()) {
             throw new RuntimeException("Email already exists");
         }
@@ -29,8 +59,12 @@ public class AdminService {
         user.setPhone(request.getPhone());
         user.setPassword(passwordEncoder.encode(request.getPassword()));
         user.setRole(User.UserRole.DOCTOR);
+        user.setActive(true);
         
+        System.out.println("AdminService: Saving user...");
         User saved = userRepository.save(user);
+        userRepository.flush();
+        System.out.println("AdminService: User saved with ID: " + saved.getId());
         return mapToDTO(saved);
     }
     
@@ -46,9 +80,75 @@ public class AdminService {
         user.setPhone(request.getPhone());
         user.setPassword(passwordEncoder.encode(request.getPassword()));
         user.setRole(User.UserRole.ASHA);
+        user.setActive(true);
         
         User saved = userRepository.save(user);
         return mapToDTO(saved);
+    }
+    
+    public List<UserResponseDTO> getAllUsers() {
+        return userRepository.findAll().stream()
+            .map(this::mapToDTO)
+            .collect(Collectors.toList());
+    }
+    
+    public List<UserResponseDTO> getUsersByRole(String role) {
+        User.UserRole userRole;
+        try {
+            userRole = User.UserRole.valueOf(role.toUpperCase());
+        } catch (IllegalArgumentException e) {
+            throw new RuntimeException("Invalid role: " + role);
+        }
+        
+        return userRepository.findByRole(userRole).stream()
+            .map(this::mapToDTO)
+            .collect(Collectors.toList());
+    }
+    
+    public List<UserResponseDTO> searchUsers(String query) {
+        return userRepository.findByNameContainingIgnoreCaseOrEmailContainingIgnoreCase(query, query).stream()
+            .map(this::mapToDTO)
+            .collect(Collectors.toList());
+    }
+    
+    @Transactional
+    public UserResponseDTO updateUser(Long id, CreateUserRequestDTO request) {
+        User user = userRepository.findById(id)
+            .orElseThrow(() -> new RuntimeException("User not found"));
+        
+        if (!user.getEmail().equals(request.getEmail()) && 
+            userRepository.findByEmail(request.getEmail()).isPresent()) {
+            throw new RuntimeException("Email already exists");
+        }
+        
+        user.setName(request.getName());
+        user.setEmail(request.getEmail());
+        user.setPhone(request.getPhone());
+        
+        if (request.getPassword() != null && !request.getPassword().isEmpty()) {
+            user.setPassword(passwordEncoder.encode(request.getPassword()));
+        }
+        
+        User saved = userRepository.save(user);
+        return mapToDTO(saved);
+    }
+    
+    @Transactional
+    public UserResponseDTO toggleUserStatus(Long id) {
+        User user = userRepository.findById(id)
+            .orElseThrow(() -> new RuntimeException("User not found"));
+        
+        user.setActive(!user.getActive());
+        User saved = userRepository.save(user);
+        return mapToDTO(saved);
+    }
+    
+    @Transactional
+    public void deleteUser(Long id) {
+        if (!userRepository.existsById(id)) {
+            throw new RuntimeException("User not found");
+        }
+        userRepository.deleteById(id);
     }
     
     @Transactional
@@ -72,12 +172,6 @@ public class AdminService {
         return mapToDTO(saved);
     }
     
-    public List<UserResponseDTO> getAllUsers() {
-        return userRepository.findAll().stream()
-            .map(this::mapToDTO)
-            .collect(Collectors.toList());
-    }
-    
     public List<UserResponseDTO> getDoctors() {
         return userRepository.findByRole(User.UserRole.DOCTOR).stream()
             .map(this::mapToDTO)
@@ -91,6 +185,7 @@ public class AdminService {
         dto.setEmail(user.getEmail());
         dto.setPhone(user.getPhone());
         dto.setRole(user.getRole());
+        dto.setActive(user.getActive());
         dto.setCreatedDate(user.getCreatedDate());
         
         if (user.getAssignedDoctor() != null) {

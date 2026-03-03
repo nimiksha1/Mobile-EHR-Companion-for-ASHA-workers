@@ -1,6 +1,7 @@
 package com.example.EHR.controller;
 
 import com.example.EHR.dto.PatientRequest;
+import com.example.EHR.dto.PatientResponse;
 import com.example.EHR.dto.PrescriptionRequest;
 import com.example.EHR.entity.Patient;
 import com.example.EHR.entity.Prescription;
@@ -20,7 +21,6 @@ import java.time.LocalDate;
 @RestController
 @RequestMapping("/api/doctor")
 @RequiredArgsConstructor
-@CrossOrigin(origins = "*")
 public class DoctorController {
     
     private final DoctorService doctorService;
@@ -42,18 +42,27 @@ public class DoctorController {
     }
     
     @GetMapping("/patients")
-    public ResponseEntity<Page<Patient>> getPatientsByDate(
+    public ResponseEntity<Page<PatientResponse>> getPatientsByDate(
             @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate date,
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size) {
         
         Pageable pageable = PageRequest.of(page, size, Sort.by("createdDate").descending());
-        Page<Patient> patients = doctorService.getPatientsByDate(date, pageable);
+        Page<PatientResponse> patients = doctorService.getPatientsByDate(date, pageable);
         return ResponseEntity.ok(patients);
     }
     
     @PostMapping("/prescription/{patientId}")
     public ResponseEntity<Prescription> createPrescription(
+            @PathVariable Long patientId,
+            @Valid @RequestBody PrescriptionRequest request,
+            @RequestParam Long doctorId) {
+        Prescription prescription = doctorService.createPrescription(patientId, request, doctorId);
+        return ResponseEntity.status(HttpStatus.CREATED).body(prescription);
+    }
+    
+    @PostMapping("/patients/{patientId}/prescriptions")
+    public ResponseEntity<Prescription> addPrescription(
             @PathVariable Long patientId,
             @Valid @RequestBody PrescriptionRequest request,
             @RequestParam Long doctorId) {

@@ -20,6 +20,8 @@ import Reports from './pages/Reports';
 import ManageUsers from './pages/ManageUsers';
 import AddDoctor from './pages/AddDoctor';
 import AddAshaWorker from './pages/AddAshaWorker';
+import DoctorDashboard from './pages/DoctorDashboard';
+import AshaDashboard from './pages/AshaDashboard';
 import './App.css';
 
 function App() {
@@ -39,6 +41,24 @@ function App() {
               element={
                 <ProtectedRoute>
                   <Dashboard />
+                </ProtectedRoute>
+              }
+            />
+            
+            <Route
+              path="/doctor/dashboard"
+              element={
+                <ProtectedRoute allowedRoles={['DOCTOR']}>
+                  <DoctorDashboard />
+                </ProtectedRoute>
+              }
+            />
+            
+            <Route
+              path="/asha/dashboard"
+              element={
+                <ProtectedRoute allowedRoles={['ASHA']}>
+                  <AshaDashboard />
                 </ProtectedRoute>
               }
             />
@@ -91,7 +111,7 @@ function App() {
             <Route
               path="/doctor/add-patient"
               element={
-                <ProtectedRoute allowedRoles={['Doctor']}>
+                <ProtectedRoute allowedRoles={['DOCTOR']}>
                   <AddPatientDoctor />
                 </ProtectedRoute>
               }
@@ -100,7 +120,7 @@ function App() {
             <Route
               path="/doctor/edit-patient"
               element={
-                <ProtectedRoute allowedRoles={['Doctor']}>
+                <ProtectedRoute allowedRoles={['DOCTOR']}>
                   <EditPatient />
                 </ProtectedRoute>
               }
@@ -109,7 +129,7 @@ function App() {
             <Route
               path="/doctor/edit-patient/:id"
               element={
-                <ProtectedRoute allowedRoles={['Doctor']}>
+                <ProtectedRoute allowedRoles={['DOCTOR']}>
                   <EditPatient />
                 </ProtectedRoute>
               }
@@ -154,7 +174,7 @@ function App() {
             <Route
               path="/reports"
               element={
-                <ProtectedRoute allowedRoles={['Doctor', 'Admin']}>
+                <ProtectedRoute allowedRoles={['DOCTOR', 'ADMIN']}>
                   <Reports />
                 </ProtectedRoute>
               }

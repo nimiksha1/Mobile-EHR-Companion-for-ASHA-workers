@@ -11,6 +11,7 @@ public class UserResponseDTO {
     private String email;
     private String phone;
     private UserRole role;
+    private Boolean active;
     private Long assignedDoctorId;
     private String assignedDoctorName;
     private LocalDateTime createdDate;

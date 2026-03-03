@@ -1,18 +1,22 @@
 package com.example.EHR.service;
 
 import com.example.EHR.dto.PatientRequest;
+import com.example.EHR.dto.PatientResponse;
 import com.example.EHR.dto.PrescriptionRequest;
 import com.example.EHR.entity.*;
 import com.example.EHR.exception.UnauthorizedException;
 import com.example.EHR.repository.*;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
+import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -136,13 +140,32 @@ public class DoctorService {
         return updated;
     }
     
-    public Page<Patient> getPatientsByDate(LocalDate date, Pageable pageable) {
+    public Page<PatientResponse> getPatientsByDate(LocalDate date, Pageable pageable) {
+        Page<Patient> patientPage;
         if (date == null) {
-            return patientRepository.findAll(pageable);
+            patientPage = patientRepository.findAll(pageable);
+        } else {
+            LocalDateTime startOfDay = date.atStartOfDay();
+            LocalDateTime endOfDay = date.atTime(LocalTime.MAX);
+            patientPage = patientRepository.findByCreatedDateBetween(startOfDay, endOfDay, pageable);
         }
-        LocalDateTime startOfDay = date.atStartOfDay();
-        LocalDateTime endOfDay = date.atTime(LocalTime.MAX);
-        return patientRepository.findByCreatedDateBetween(startOfDay, endOfDay, pageable);
+        
+        List<PatientResponse> responses = patientPage.getContent().stream()
+            .map(patient -> {
+                PregnancyDetails pregnancyDetails = null;
+                DiabetesDetails diabetesDetails = null;
+                
+                if (patient.getPatientType() == Patient.PatientType.PREGNANCY) {
+                    pregnancyDetails = pregnancyDetailsRepository.findByPatient(patient).orElse(null);
+                } else if (patient.getPatientType() == Patient.PatientType.DIABETES) {
+                    diabetesDetails = diabetesDetailsRepository.findByPatient(patient).orElse(null);
+                }
+                
+                return PatientResponse.fromEntity(patient, pregnancyDetails, diabetesDetails);
+            })
+            .collect(Collectors.toList());
+        
+        return new PageImpl<>(responses, pageable, patientPage.getTotalElements());
     }
     
     @Transactional

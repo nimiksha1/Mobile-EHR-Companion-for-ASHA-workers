@@ -1,21 +1,23 @@
-package com.example.EHR.model;
+package com.example.EHR.entity;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
+import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 @Entity
+@Table(name = "hospitals")
 @Data
+@NoArgsConstructor
+@AllArgsConstructor
 public class Hospital {
+    
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long hospitalId;
-
+    private Long id;
+    
     private String hospitalName;
     private String district;
     private String state;
     private String contact;
 }
-

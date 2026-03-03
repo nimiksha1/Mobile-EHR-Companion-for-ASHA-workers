@@ -1,9 +1,137 @@
+.app-layout {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  background: #f5f7fa;
+}
+
+.main-content {
+  display: flex;
+  flex: 1;
+}
+
+.content-area {
+  flex: 1;
+  margin-left: 250px;
+  padding: 2rem;
+}
+
+.page-header {
+  margin-bottom: 2rem;
+}
+
+.page-header h1 {
+  color: #2d3748;
+  font-size: 2rem;
+  font-weight: 600;
+}
+
+.form-card {
+  background: white;
+  padding: 2.5rem;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+  max-width: 900px;
+  margin: 0 auto;
+}
+
+.form-card form {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.form-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1.5rem;
+}
+
+.form-group {
+  display: flex;
+  flex-direction: column;
+}
+
+.form-group label {
+  font-weight: 600;
+  color: #4a5568;
+  margin-bottom: 0.5rem;
+  font-size: 0.95rem;
+}
+
+.form-group input,
+.form-group select,
+.form-group textarea {
+  padding: 0.75rem;
+  border: 1.5px solid #e2e8f0;
+  border-radius: 8px;
+  font-size: 1rem;
+  transition: all 0.3s;
+  background: #f7fafc;
+}
+
+.form-group input:focus,
+.form-group select:focus,
+.form-group textarea:focus {
+  outline: none;
+  border-color: #84B179;
+  background: white;
+  box-shadow: 0 0 0 3px rgba(132, 177, 121, 0.1);
+}
+
+.form-group textarea {
+  resize: vertical;
+  min-height: 100px;
+}
+
+.form-actions {
+  display: flex;
+  gap: 1rem;
+  justify-content: flex-end;
+  margin-top: 1rem;
+}
+
+.btn-primary,
+.btn-secondary {
+  padding: 0.75rem 2rem;
+  border: none;
+  border-radius: 8px;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s;
+}
+
+.btn-primary {
+  background: linear-gradient(135deg, #A2CB8B 0%, #84B179 100%);
+  color: white;
+}
+
+.btn-primary:hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(132, 177, 121, 0.4);
+}
+
+.btn-primary:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.btn-secondary {
+  background: #e2e8f0;
+  color: #4a5568;
+}
+
+.btn-secondary:hover {
+  background: #cbd5e0;
+}
+
 .prediction-card {
   background: white;
   padding: 2.5rem;
   border-radius: 12px;
   box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-  max-width: 600px;
+  max-width: 700px;
   margin: 0 auto;
 }
 
@@ -23,6 +151,7 @@
   text-align: center;
   color: #2d3748;
   margin-bottom: 2rem;
+  font-size: 1.8rem;
 }
 
 .risk-score {
@@ -51,6 +180,7 @@
 .risk-level {
   font-size: 1.8rem;
   margin: 0;
+  font-weight: 600;
 }
 
 .risk-level.high {
@@ -70,11 +200,13 @@
   padding: 1.5rem;
   border-radius: 8px;
   margin: 2rem 0;
+  border-left: 4px solid #84B179;
 }
 
 .recommendation h4 {
   margin: 0 0 1rem 0;
   color: #2d3748;
+  font-size: 1.1rem;
 }
 
 .recommendation p {
@@ -91,9 +223,33 @@
   margin: 1.5rem 0;
   font-weight: 600;
   text-align: center;
+  border-left: 4px solid #f56565;
 }
 
 @media (max-width: 768px) {
+  .content-area {
+    margin-left: 0;
+    padding: 1rem;
+  }
+  
+  .form-card {
+    padding: 1.5rem;
+  }
+  
+  .form-row {
+    grid-template-columns: 1fr;
+    gap: 1rem;
+  }
+  
+  .form-actions {
+    flex-direction: column;
+  }
+  
+  .btn-primary,
+  .btn-secondary {
+    width: 100%;
+  }
+  
   .prediction-card {
     padding: 1.5rem;
   }

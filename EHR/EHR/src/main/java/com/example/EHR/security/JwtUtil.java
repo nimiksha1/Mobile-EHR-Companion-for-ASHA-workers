@@ -5,11 +5,12 @@ import io.jsonwebtoken.security.Keys;
 import org.springframework.stereotype.Component;
 import java.security.Key;
 import java.util.Date;
+import java.nio.charset.StandardCharsets;
 
 @Component
 public class JwtUtil {
     
-    private final Key key = Keys.secretKeyFor(SignatureAlgorithm.HS256);
+    private final Key key = Keys.hmacShaKeyFor("MySecretKeyForJWTTokenGenerationMustBe256BitsLong12345678".getBytes(StandardCharsets.UTF_8));
     private final long expiration = 86400000; // 24 hours
     
     public String generateToken(String email, String role) {

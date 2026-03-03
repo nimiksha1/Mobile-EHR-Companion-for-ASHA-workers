@@ -18,8 +18,14 @@ public class AshaController {
     
     private final AshaService ashaService;
     
+    @GetMapping("/assigned-patients")
+    public ResponseEntity<List<PatientResponse>> getAssignedPatients() {
+        List<PatientResponse> patients = ashaService.getAllPatients();
+        return ResponseEntity.ok(patients);
+    }
+    
     @GetMapping("/patients")
-    public ResponseEntity<List<PatientResponse>> getAssignedPatients(@RequestParam Long ashaId) {
+    public ResponseEntity<List<PatientResponse>> getPatientsByAshaId(@RequestParam Long ashaId) {
         List<PatientResponse> patients = ashaService.getAssignedPatients(ashaId);
         return ResponseEntity.ok(patients);
     }

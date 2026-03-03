@@ -20,7 +20,18 @@ const Login = () => {
     
     if (result.success) {
       login(result.user, result.token);
-      navigate('/dashboard');
+      
+      // Role-based redirect
+      const role = result.user.role;
+      if (role === 'ADMIN') {
+        navigate('/admin/manage-users');
+      } else if (role === 'DOCTOR') {
+        navigate('/doctor/dashboard');
+      } else if (role === 'ASHA') {
+        navigate('/asha/dashboard');
+      } else {
+        navigate('/dashboard');
+      }
     } else {
       setError(result.message);
     }

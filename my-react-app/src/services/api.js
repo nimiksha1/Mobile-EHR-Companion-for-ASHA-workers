@@ -14,14 +14,20 @@ export const authService = {
       }
       
       const data = await response.json();
-      localStorage.setItem('token', data.token);
-      localStorage.setItem('user', JSON.stringify({
-        email: data.email,
-        name: data.name,
-        role: data.role
-      }));
       
-      return { success: true, user: data };
+      // Store userId for API calls
+      localStorage.setItem('userId', data.userId || data.id);
+      
+      return { 
+        success: true, 
+        user: {
+          email: data.email,
+          name: data.name,
+          role: data.role,
+          userId: data.userId || data.id
+        },
+        token: data.token
+      };
     } catch (error) {
       return { success: false, message: error.message };
     }

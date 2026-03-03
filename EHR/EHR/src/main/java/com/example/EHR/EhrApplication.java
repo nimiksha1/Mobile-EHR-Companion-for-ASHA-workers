@@ -3,7 +3,8 @@ package com.example.EHR;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
-@SpringBootApplication
+
+@SpringBootApplication()
 public class EhrApplication {
 
 	public static void main(String[] args) {

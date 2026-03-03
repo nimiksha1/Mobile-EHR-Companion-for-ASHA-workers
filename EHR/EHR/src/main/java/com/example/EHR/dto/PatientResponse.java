@@ -60,9 +60,16 @@ public class PatientResponse {
         response.setPhone(patient.getPhone());
         response.setAddress(patient.getAddress());
         response.setPatientType(patient.getPatientType().name());
-        response.setAssignedAshaName(patient.getAssignedAsha().getName());
-        response.setAssignedAshaId(patient.getAssignedAsha().getId());
-        response.setCreatedByDoctorName(patient.getCreatedByDoctor().getName());
+        
+        if (patient.getAssignedAsha() != null) {
+            response.setAssignedAshaName(patient.getAssignedAsha().getName());
+            response.setAssignedAshaId(patient.getAssignedAsha().getId());
+        }
+        
+        if (patient.getCreatedByDoctor() != null) {
+            response.setCreatedByDoctorName(patient.getCreatedByDoctor().getName());
+        }
+        
         response.setCreatedDate(patient.getCreatedDate());
         response.setLastUpdatedDate(patient.getLastUpdatedDate());
         

@@ -4,7 +4,7 @@ import java.util.List;
 
 import org.springframework.stereotype.Service;
 
-import com.example.EHR.model.Vitals;
+import com.example.EHR.entity.Vitals;
 import com.example.EHR.repository.VitalRepository;
 
 import lombok.RequiredArgsConstructor;
