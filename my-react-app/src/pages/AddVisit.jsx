@@ -14,10 +14,17 @@ const AddVisit = () => {
     patientId: '',
     systolic: '',
     diastolic: '',
+    bloodSugar: '',
+    cholesterol: '',
+    heartRate: '',
+    oxygenLevel: '',
     weight: '',
     hemoglobin: '',
     temperature: '',
-    symptoms: ''
+    numberOfWeeks: '',
+    address: '',
+    symptoms: '',
+    prescription: ''
   });
   const [loading, setLoading] = useState(false);
   const [prediction, setPrediction] = useState(null);
@@ -149,16 +156,84 @@ const AddVisit = () => {
 
               <div className="form-row">
                 <div className="form-group">
+                  <label>Blood Sugar (mg/dL) *</label>
+                  <input
+                    type="number"
+                    name="bloodSugar"
+                    value={formData.bloodSugar}
+                    onChange={handleChange}
+                    min="0"
+                    required
+                  />
+                </div>
+
+                <div className="form-group">
+                  <label>Cholesterol (mg/dL) *</label>
+                  <input
+                    type="number"
+                    name="cholesterol"
+                    value={formData.cholesterol}
+                    onChange={handleChange}
+                    min="0"
+                    required
+                  />
+                </div>
+              </div>
+
+              <div className="form-row">
+                <div className="form-group">
+                  <label>Heart Rate (bpm) *</label>
+                  <input
+                    type="number"
+                    name="heartRate"
+                    value={formData.heartRate}
+                    onChange={handleChange}
+                    min="0"
+                    required
+                  />
+                </div>
+
+                <div className="form-group">
+                  <label>Oxygen Level (%) *</label>
+                  <input
+                    type="number"
+                    name="oxygenLevel"
+                    value={formData.oxygenLevel}
+                    onChange={handleChange}
+                    min="0"
+                    required
+                  />
+                </div>
+              </div>
+
+              <div className="form-row">
+                <div className="form-group">
                   <label>Weight (kg) *</label>
                   <input
                     type="number"
                     name="weight"
                     value={formData.weight}
                     onChange={handleChange}
+                    min="0"
                     required
                   />
                 </div>
 
+                <div className="form-group">
+                  <label>Temperature (°F) *</label>
+                  <input
+                    type="number"
+                    step="0.1"
+                    name="temperature"
+                    value={formData.temperature}
+                    onChange={handleChange}
+                    min="0"
+                    required
+                  />
+                </div>
+              </div>
+
+              <div className="form-row">
                 <div className="form-group">
                   <label>Hemoglobin (g/dL) *</label>
                   <input
@@ -167,20 +242,32 @@ const AddVisit = () => {
                     name="hemoglobin"
                     value={formData.hemoglobin}
                     onChange={handleChange}
+                    min="0"
                     required
+                  />
+                </div>
+
+                <div className="form-group">
+                  <label>Number of Weeks (Pregnancy)</label>
+                  <input
+                    type="number"
+                    name="numberOfWeeks"
+                    value={formData.numberOfWeeks}
+                    onChange={handleChange}
+                    min="0"
+                    placeholder="Enter pregnancy weeks"
                   />
                 </div>
               </div>
 
               <div className="form-group">
-                <label>Temperature (°F) *</label>
-                <input
-                  type="number"
-                  step="0.1"
-                  name="temperature"
-                  value={formData.temperature}
+                <label>Address</label>
+                <textarea
+                  name="address"
+                  value={formData.address}
                   onChange={handleChange}
-                  required
+                  rows="2"
+                  placeholder="Enter patient address"
                 />
               </div>
 
@@ -192,6 +279,17 @@ const AddVisit = () => {
                   onChange={handleChange}
                   rows="4"
                   placeholder="Describe any symptoms..."
+                />
+              </div>
+
+              <div className="form-group">
+                <label>Prescription</label>
+                <textarea
+                  name="prescription"
+                  value={formData.prescription}
+                  onChange={handleChange}
+                  rows="4"
+                  placeholder="Enter prescription details..."
                 />
               </div>
 

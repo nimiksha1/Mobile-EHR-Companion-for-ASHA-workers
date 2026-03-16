@@ -11,12 +11,14 @@ const DoctorDashboard = () => {
   const [selectedPatient, setSelectedPatient] = useState(null);
   const [showPrescriptionModal, setShowPrescriptionModal] = useState(false);
   const [showVisitHistory, setShowVisitHistory] = useState(false);
+  const [showUpdatePrescriptionModal, setShowUpdatePrescriptionModal] = useState(false);
   const [visitHistory, setVisitHistory] = useState([]);
   const [prescriptionData, setPrescriptionData] = useState({
     medicines: '',
     dosage: '',
     advice: ''
   });
+  const [updatedPrescription, setUpdatedPrescription] = useState('');
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -119,6 +121,36 @@ const DoctorDashboard = () => {
     }
   };
 
+  const handleUpdatePrescription = (patient) => {
+    setSelectedPatient(patient);
+    setUpdatedPrescription(patient.prescription || '');
+    setShowUpdatePrescriptionModal(true);
+  };
+
+  const handleSubmitUpdatedPrescription = async (e) => {
+    e.preventDefault();
+    try {
+      const token = localStorage.getItem('token');
+      const response = await fetch(`http://localhost:8080/api/doctor/patients/${selectedPatient.id}/prescription`, {
+        method: 'PUT',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'text/plain'
+        },
+        body: updatedPrescription
+      });
+      
+      if (response.ok) {
+        alert('Prescription updated successfully!');
+        setShowUpdatePrescriptionModal(false);
+        fetchPatients();
+      }
+    } catch (error) {
+      console.error('Error updating prescription:', error);
+      alert('Failed to update prescription');
+    }
+  };
+
   const handleDownloadReport = (patient) => {
     alert(`Downloading report for ${patient.name}...`);
   };
@@ -177,8 +209,8 @@ const DoctorDashboard = () => {
                   <th>Name</th>
                   <th>Age</th>
                   <th>Type</th>
-                  <th>Risk Level</th>
-                  <th>Phone</th>
+                  <th>Assigned ASHA</th>
+                  <th>Prescription</th>
                   <th>Actions</th>
                 </tr>
               </thead>
@@ -198,30 +230,20 @@ const DoctorDashboard = () => {
                           {patient.patientType}
                         </span>
                       </td>
-                      <td>
-                        <span className={`risk-badge ${getRiskLevel(patient).toLowerCase()}`}>
-                          {getRiskLevel(patient)}
-                        </span>
-                      </td>
-                      <td>{patient.phone}</td>
+                      <td>{patient.assignedAshaName || 'Not Assigned'}</td>
+                      <td>{patient.prescription || 'No prescription'}</td>
                       <td className="action-buttons">
                         <button 
                           className="btn-prescription"
-                          onClick={() => handleAddPrescription(patient)}
+                          onClick={() => handleUpdatePrescription(patient)}
                         >
-                          Prescription
+                          Update Prescription
                         </button>
                         <button 
                           className="btn-view"
-                          onClick={() => handleViewVisitHistory(patient)}
+                          onClick={() => navigate(`/doctor/patient-history/${patient.id}`)}
                         >
-                          Visit History
-                        </button>
-                        <button 
-                          className="btn-download"
-                          onClick={() => handleDownloadReport(patient)}
-                        >
-                          PDF
+                          View History
                         </button>
                       </td>
                     </tr>
@@ -271,6 +293,34 @@ const DoctorDashboard = () => {
                 </button>
                 <button type="submit" className="btn-submit">
                   Add Prescription
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {showUpdatePrescriptionModal && (
+        <div className="modal-overlay" onClick={() => setShowUpdatePrescriptionModal(false)}>
+          <div className="modal-content" onClick={(e) => e.stopPropagation()}>
+            <h2>Update Prescription - {selectedPatient?.name}</h2>
+            <form onSubmit={handleSubmitUpdatedPrescription}>
+              <div className="form-group">
+                <label>Prescription</label>
+                <textarea
+                  value={updatedPrescription}
+                  onChange={(e) => setUpdatedPrescription(e.target.value)}
+                  placeholder="Enter prescription details..."
+                  rows="6"
+                  required
+                />
+              </div>
+              <div className="modal-actions">
+                <button type="button" className="btn-cancel" onClick={() => setShowUpdatePrescriptionModal(false)}>
+                  Cancel
+                </button>
+                <button type="submit" className="btn-submit">
+                  Update Prescription
                 </button>
               </div>
             </form>

@@ -9,6 +9,8 @@ const AddPatientDoctor = () => {
   const { fetchPatients } = useData();
   const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState(false);
+  const [ashaWorkers, setAshaWorkers] = useState([]);
+  const [loadingAsha, setLoadingAsha] = useState(true);
   
   const [formData, setFormData] = useState({
     patientId: 'P' + Date.now(),
@@ -17,8 +19,10 @@ const AddPatientDoctor = () => {
     gender: 'Female',
     phone: '',
     address: '',
-    assignedAsha: '',
+    assignedAshaId: '',
+    prescription: '',
     type: 'Pregnancy',
+    visitDate: new Date().toISOString().split('T')[0],
     height: '',
     weight: '',
     bmi: '',
@@ -33,7 +37,35 @@ const AddPatientDoctor = () => {
     oxygenLevel: ''
   });
 
-  const ashaWorkers = ['Priya Sharma', 'Sunita Devi', 'Rekha Singh'];
+  useEffect(() => {
+    fetchAshaWorkers();
+  }, []);
+
+  const fetchAshaWorkers = async () => {
+    try {
+      const token = localStorage.getItem('token');
+      console.log('Fetching ASHA workers with token:', token ? 'Present' : 'Missing');
+      
+      const response = await fetch('http://localhost:8080/api/doctor/asha-workers', {
+        headers: { 'Authorization': `Bearer ${token}` }
+      });
+      
+      console.log('Response status:', response.status);
+      
+      if (!response.ok) {
+        console.error('Failed to fetch ASHA workers:', response.status, response.statusText);
+        return;
+      }
+      
+      const data = await response.json();
+      console.log('ASHA workers received:', data);
+      setAshaWorkers(data);
+    } catch (error) {
+      console.error('Error fetching ASHA workers:', error);
+    } finally {
+      setLoadingAsha(false);
+    }
+  };
 
   useEffect(() => {
     if (formData.height && formData.weight) {
@@ -58,7 +90,9 @@ const AddPatientDoctor = () => {
         gender: formData.gender,
         phone: formData.phone,
         address: formData.address,
-        patientType: formData.type.toUpperCase()
+        patientType: formData.type.toUpperCase(),
+        prescription: formData.prescription,
+        assignedAshaId: formData.assignedAshaId ? parseInt(formData.assignedAshaId) : null
       };
 
       if (formData.type === 'Pregnancy') {
@@ -97,6 +131,42 @@ const AddPatientDoctor = () => {
       });
 
       if (response.ok) {
+        const patient = await response.json();
+        
+        // Create initial visit record
+        const visitData = {
+          visitDate: formData.visitDate,
+          bloodPressure: formData.systolic && formData.diastolic ? `${formData.systolic}/${formData.diastolic}` : null,
+          sugarLevel: formData.bloodSugar ? parseFloat(formData.bloodSugar) : null,
+          cholesterol: formData.cholesterol ? parseFloat(formData.cholesterol) : null,
+          heartRate: formData.heartRate ? parseInt(formData.heartRate) : null,
+          oxygenLevel: formData.oxygenLevel ? parseFloat(formData.oxygenLevel) : null,
+          weight: formData.weight ? parseFloat(formData.weight) : null,
+          temperature: formData.bodyTemperature ? parseFloat(formData.bodyTemperature) : null,
+          pulseRate: formData.heartRate ? parseInt(formData.heartRate) : null,
+          numberOfWeeks: formData.numberOfWeeks ? parseInt(formData.numberOfWeeks) : null,
+          hemoglobin: formData.hemoglobin ? parseFloat(formData.hemoglobin) : null,
+          address: formData.address || null,
+          prescription: formData.prescription || null,
+          notes: `Initial visit - Patient Type: ${formData.type}`
+        };
+        
+        if (formData.type === 'Pregnancy') {
+          visitData.notes += `, Hemoglobin: ${formData.hemoglobin || 'N/A'}, Weeks: ${formData.numberOfWeeks || 'N/A'}`;
+        } else {
+          visitData.notes += `, Cholesterol: ${formData.cholesterol || 'N/A'}, Oxygen Level: ${formData.oxygenLevel || 'N/A'}`;
+        }
+        
+        // Add visit record
+        await fetch(`http://localhost:8080/api/patients/${patient.id}/visit?doctorId=${doctorId}`, {
+          method: 'POST',
+          headers: {
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify(visitData)
+        });
+        
         setSuccess(true);
         fetchPatients(); // Refresh patient list
         setTimeout(() => {
@@ -131,6 +201,20 @@ const AddPatientDoctor = () => {
 
       <div className="form-card">
         <form onSubmit={handleSubmit}>
+          <div className="form-section">
+            <h3>Visit Information</h3>
+            <div className="form-group">
+              <label>Visit Date *</label>
+              <input 
+                type="date" 
+                name="visitDate" 
+                value={formData.visitDate} 
+                onChange={handleChange} 
+                required 
+              />
+            </div>
+          </div>
+
           <div className="form-section">
             <h3>Patient Type</h3>
             <div className="form-group">
@@ -177,13 +261,28 @@ const AddPatientDoctor = () => {
               </div>
               <div className="form-group">
                 <label>Assigned ASHA Worker *</label>
-                <select name="assignedAsha" value={formData.assignedAsha} onChange={handleChange} required>
+                <select name="assignedAshaId" value={formData.assignedAshaId} onChange={handleChange} required>
                   <option value="">-- Select ASHA --</option>
-                  {ashaWorkers.map(asha => (
-                    <option key={asha} value={asha}>{asha}</option>
-                  ))}
+                  {loadingAsha ? (
+                    <option disabled>Loading...</option>
+                  ) : (
+                    ashaWorkers.map(asha => (
+                      <option key={asha.id} value={asha.id}>{asha.name}</option>
+                    ))
+                  )}
                 </select>
               </div>
+            </div>
+
+            <div className="form-group">
+              <label>Prescription</label>
+              <textarea 
+                name="prescription" 
+                value={formData.prescription} 
+                onChange={handleChange} 
+                rows="3"
+                placeholder="Enter prescription details..."
+              />
             </div>
 
             <div className="form-group">

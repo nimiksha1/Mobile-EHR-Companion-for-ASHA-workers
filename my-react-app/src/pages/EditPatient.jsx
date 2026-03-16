@@ -29,6 +29,7 @@ const EditPatient = () => {
       setPatient(found);
       setFormData({
         ...found,
+        visitDate: new Date().toISOString().split('T')[0],
         systolic: found.pregnancyDetails?.systolic || found.diabetesDetails?.systolic || '',
         diastolic: found.pregnancyDetails?.diastolic || found.diabetesDetails?.diastolic || '',
         bloodSugar: found.pregnancyDetails?.bloodSugar || found.diabetesDetails?.bloodSugar || '',
@@ -37,7 +38,9 @@ const EditPatient = () => {
         hemoglobin: found.pregnancyDetails?.hemoglobin || '',
         cholesterol: found.diabetesDetails?.cholesterol || '',
         heartRate: found.diabetesDetails?.heartRate || '',
-        oxygenLevel: found.diabetesDetails?.oxygenLevel || ''
+        oxygenLevel: found.diabetesDetails?.oxygenLevel || '',
+        address: found.address || '',
+        prescription: found.prescription || ''
       });
     } else {
       alert('Patient not found');
@@ -48,29 +51,51 @@ const EditPatient = () => {
     e.preventDefault();
     setLoading(true);
 
-    const result = await mlService.predictRisk({
-      systolic: formData.systolic,
-      diastolic: formData.diastolic,
-      hemoglobin: formData.hemoglobin,
-      weight: formData.weight
-    });
-
-    setPrediction(result);
-
-    const updatedPatient = {
-      ...formData,
-      riskScore: result.riskScore,
-      riskLevel: result.riskLevel,
-      lastVisitDate: new Date().toLocaleDateString()
-    };
-
-    const patientIndex = patients.findIndex(p => p.patientId === formData.patientId);
-    if (patientIndex !== -1) {
-      patients[patientIndex] = updatedPatient;
-      localStorage.setItem('patients', JSON.stringify(patients));
+    try {
+      const token = localStorage.getItem('token');
+      const doctorId = localStorage.getItem('userId');
+      
+      // Create visit record
+      const visitData = {
+        visitDate: formData.visitDate,
+        bloodPressure: formData.systolic && formData.diastolic ? `${formData.systolic}/${formData.diastolic}` : null,
+        sugarLevel: formData.bloodSugar ? parseFloat(formData.bloodSugar) : null,
+        cholesterol: formData.cholesterol ? parseFloat(formData.cholesterol) : null,
+        heartRate: formData.heartRate ? parseInt(formData.heartRate) : null,
+        oxygenLevel: formData.oxygenLevel ? parseFloat(formData.oxygenLevel) : null,
+        weight: formData.weight ? parseFloat(formData.weight) : null,
+        temperature: formData.bodyTemperature ? parseFloat(formData.bodyTemperature) : null,
+        pulseRate: formData.heartRate ? parseInt(formData.heartRate) : null,
+        numberOfWeeks: formData.numberOfWeeks ? parseInt(formData.numberOfWeeks) : null,
+        hemoglobin: formData.hemoglobin ? parseFloat(formData.hemoglobin) : null,
+        address: formData.address || null,
+        prescription: formData.prescription || null,
+        notes: `Follow-up visit - Updated vitals`
+      };
+      
+      if (formData.type === 'Pregnancy') {
+        visitData.notes += `, Hemoglobin: ${formData.hemoglobin || 'N/A'}, Weeks: ${formData.numberOfWeeks || 'N/A'}`;
+      } else {
+        visitData.notes += `, Cholesterol: ${formData.cholesterol || 'N/A'}, Oxygen Level: ${formData.oxygenLevel || 'N/A'}`;
+      }
+      
+      await fetch(`http://localhost:8080/api/patients/${patient.id}/visit?doctorId=${doctorId}`, {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(visitData)
+      });
+      
+      alert('Visit record updated successfully!');
+      navigate(`/doctor/patient-history/${patient.id}`);
+    } catch (error) {
+      console.error('Error:', error);
+      alert('Error updating visit record');
+    } finally {
+      setLoading(false);
     }
-
-    setLoading(false);
   };
 
   const handleChange = (e) => {
@@ -118,6 +143,20 @@ const EditPatient = () => {
       <div className="form-card">
             <form onSubmit={handleSubmit}>
               <div className="form-section">
+                <h3>Visit Information</h3>
+                <div className="form-group">
+                  <label>Visit Date *</label>
+                  <input 
+                    type="date" 
+                    name="visitDate" 
+                    value={formData.visitDate} 
+                    onChange={handleChange} 
+                    required 
+                  />
+                </div>
+              </div>
+
+              <div className="form-section">
                 <h3>Basic Information</h3>
                 <div className="form-row">
                   <div className="form-group">
@@ -163,26 +202,65 @@ const EditPatient = () => {
                 <h3>Vital Signs</h3>
                 <div className="form-row">
                   <div className="form-group">
-                    <label>Systolic BP</label>
-                    <input type="number" name="systolic" value={formData.systolic} onChange={handleChange} />
+                    <label>Systolic BP (mmHg) *</label>
+                    <input type="number" name="systolic" value={formData.systolic} onChange={handleChange} min="0" required />
                   </div>
                   <div className="form-group">
-                    <label>Diastolic BP</label>
-                    <input type="number" name="diastolic" value={formData.diastolic} onChange={handleChange} />
+                    <label>Diastolic BP (mmHg) *</label>
+                    <input type="number" name="diastolic" value={formData.diastolic} onChange={handleChange} min="0" required />
+                  </div>
+                </div>
+                <div className="form-row">
+                  <div className="form-group">
+                    <label>Blood Sugar (mg/dL) *</label>
+                    <input type="number" name="bloodSugar" value={formData.bloodSugar} onChange={handleChange} min="0" required />
+                  </div>
+                  <div className="form-group">
+                    <label>Cholesterol (mg/dL) *</label>
+                    <input type="number" name="cholesterol" value={formData.cholesterol} onChange={handleChange} min="0" required />
+                  </div>
+                </div>
+                <div className="form-row">
+                  <div className="form-group">
+                    <label>Heart Rate (bpm) *</label>
+                    <input type="number" name="heartRate" value={formData.heartRate} onChange={handleChange} min="0" required />
+                  </div>
+                  <div className="form-group">
+                    <label>Oxygen Level (%) *</label>
+                    <input type="number" name="oxygenLevel" value={formData.oxygenLevel} onChange={handleChange} min="0" required />
+                  </div>
+                </div>
+                <div className="form-row">
+                  <div className="form-group">
+                    <label>Body Temperature (°F) *</label>
+                    <input type="number" step="0.1" name="bodyTemperature" value={formData.bodyTemperature} onChange={handleChange} min="0" required />
+                  </div>
+                  <div className="form-group">
+                    <label>Hemoglobin (g/dL) *</label>
+                    <input type="number" step="0.1" name="hemoglobin" value={formData.hemoglobin} onChange={handleChange} min="0" required />
                   </div>
                 </div>
                 {formData.type === 'Pregnancy' && (
                   <div className="form-row">
                     <div className="form-group">
-                      <label>Hemoglobin</label>
-                      <input type="number" step="0.1" name="hemoglobin" value={formData.hemoglobin} onChange={handleChange} />
+                      <label>Number of Weeks *</label>
+                      <input type="number" name="numberOfWeeks" value={formData.numberOfWeeks} onChange={handleChange} min="0" required />
                     </div>
-                    <div className="form-group">
-                      <label>Number of Weeks</label>
-                      <input type="number" name="numberOfWeeks" value={formData.numberOfWeeks} onChange={handleChange} />
-                    </div>
+                    <div className="form-group"></div>
                   </div>
                 )}
+              </div>
+
+              <div className="form-section">
+                <h3>Additional Information</h3>
+                <div className="form-group">
+                  <label>Address</label>
+                  <textarea name="address" value={formData.address || ''} onChange={handleChange} rows="2" placeholder="Enter patient address" />
+                </div>
+                <div className="form-group">
+                  <label>Prescription</label>
+                  <textarea name="prescription" value={formData.prescription || ''} onChange={handleChange} rows="4" placeholder="Enter prescription details" />
+                </div>
               </div>
 
               <div className="form-actions">
@@ -190,7 +268,7 @@ const EditPatient = () => {
                   Cancel
                 </button>
                 <button type="submit" className="btn-primary" disabled={loading}>
-                  {loading ? 'Updating...' : 'Update & Predict'}
+                  {loading ? 'Updating...' : 'Update Visit Record'}
                 </button>
               </div>
             </form>

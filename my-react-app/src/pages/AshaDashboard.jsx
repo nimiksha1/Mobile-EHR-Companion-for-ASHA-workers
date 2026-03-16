@@ -16,7 +16,7 @@ const AshaDashboard = () => {
   const fetchAssignedPatients = async () => {
     try {
       const token = localStorage.getItem('token');
-      const response = await fetch('http://localhost:8080/api/asha/assigned-patients', {
+      const response = await fetch('http://localhost:8080/api/patients/asha', {
         headers: { 'Authorization': `Bearer ${token}` }
       });
       

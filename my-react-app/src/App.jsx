@@ -22,6 +22,7 @@ import AddDoctor from './pages/AddDoctor';
 import AddAshaWorker from './pages/AddAshaWorker';
 import DoctorDashboard from './pages/DoctorDashboard';
 import AshaDashboard from './pages/AshaDashboard';
+import PatientHistory from './pages/PatientHistory';
 import './App.css';
 
 function App() {
@@ -131,6 +132,15 @@ function App() {
               element={
                 <ProtectedRoute allowedRoles={['DOCTOR']}>
                   <EditPatient />
+                </ProtectedRoute>
+              }
+            />
+            
+            <Route
+              path="/doctor/patient-history/:patientId"
+              element={
+                <ProtectedRoute allowedRoles={['DOCTOR', 'ASHA']}>
+                  <PatientHistory />
                 </ProtectedRoute>
               }
             />
