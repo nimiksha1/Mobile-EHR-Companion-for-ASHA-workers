@@ -35,6 +35,9 @@ public class Patient {
     @Column(nullable = false)
     private String address;
     
+    @Column(columnDefinition = "TEXT")
+    private String prescription;
+    
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private PatientType patientType;

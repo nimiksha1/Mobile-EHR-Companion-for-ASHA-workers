@@ -184,7 +184,7 @@ public class AdminService {
         dto.setName(user.getName());
         dto.setEmail(user.getEmail());
         dto.setPhone(user.getPhone());
-        dto.setRole(user.getRole());
+        dto.setRole(user.getRole().name());
         dto.setActive(user.getActive());
         dto.setCreatedDate(user.getCreatedDate());
         

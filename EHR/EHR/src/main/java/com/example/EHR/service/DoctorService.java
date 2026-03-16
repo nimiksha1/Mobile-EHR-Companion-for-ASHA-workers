@@ -3,6 +3,7 @@ package com.example.EHR.service;
 import com.example.EHR.dto.PatientRequest;
 import com.example.EHR.dto.PatientResponse;
 import com.example.EHR.dto.PrescriptionRequest;
+import com.example.EHR.dto.UserResponseDTO;
 import com.example.EHR.entity.*;
 import com.example.EHR.exception.UnauthorizedException;
 import com.example.EHR.repository.*;
@@ -27,6 +28,31 @@ public class DoctorService {
     private final PregnancyDetailsRepository pregnancyDetailsRepository;
     private final DiabetesDetailsRepository diabetesDetailsRepository;
     private final PrescriptionRepository prescriptionRepository;
+    
+    public List<UserResponseDTO> getAshaWorkers() {
+        List<User> allUsers = userRepository.findAll();
+        System.out.println("Total users in DB: " + allUsers.size());
+        
+        List<UserResponseDTO> ashaWorkers = allUsers.stream()
+            .filter(user -> {
+                boolean isAsha = user.getRole() == User.UserRole.ASHA;
+                System.out.println("User: " + user.getName() + ", Role: " + user.getRole() + ", isAsha: " + isAsha);
+                return isAsha;
+            })
+            .map(user -> {
+                UserResponseDTO dto = new UserResponseDTO();
+                dto.setId(user.getId());
+                dto.setName(user.getName());
+                dto.setEmail(user.getEmail());
+                dto.setRole(user.getRole().name());
+                dto.setActive(user.getActive());
+                return dto;
+            })
+            .collect(Collectors.toList());
+        
+        System.out.println("ASHA workers found: " + ashaWorkers.size());
+        return ashaWorkers;
+    }
     
     @Transactional
     public Patient createPatient(PatientRequest request, Long doctorId) {
@@ -58,6 +84,7 @@ public class DoctorService {
         patient.setPhone(request.getPhone());
         patient.setAddress(request.getAddress());
         patient.setPatientType(Patient.PatientType.valueOf(request.getPatientType().toUpperCase()));
+        patient.setPrescription(request.getPrescription());
         patient.setAssignedAsha(asha);
         patient.setCreatedByDoctor(doctor);
         
@@ -166,6 +193,27 @@ public class DoctorService {
             .collect(Collectors.toList());
         
         return new PageImpl<>(responses, pageable, patientPage.getTotalElements());
+    }
+    
+    @Transactional
+    public PatientResponse updatePrescription(Long patientId, String prescription) {
+        Patient patient = patientRepository.findById(patientId)
+            .orElseThrow(() -> new RuntimeException("Patient not found"));
+        
+        patient.setPrescription(prescription);
+        patient.setLastUpdatedDate(LocalDateTime.now());
+        Patient updated = patientRepository.save(patient);
+        
+        PregnancyDetails pregnancyDetails = null;
+        DiabetesDetails diabetesDetails = null;
+        
+        if (updated.getPatientType() == Patient.PatientType.PREGNANCY) {
+            pregnancyDetails = pregnancyDetailsRepository.findByPatient(updated).orElse(null);
+        } else if (updated.getPatientType() == Patient.PatientType.DIABETES) {
+            diabetesDetails = diabetesDetailsRepository.findByPatient(updated).orElse(null);
+        }
+        
+        return PatientResponse.fromEntity(updated, pregnancyDetails, diabetesDetails);
     }
     
     @Transactional

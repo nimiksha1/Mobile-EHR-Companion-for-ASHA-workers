@@ -27,6 +27,8 @@ public class PatientRequest {
     @NotBlank(message = "Patient type is required")
     private String patientType;
     
+    private String prescription;
+    
     private Long assignedAshaId;
     private PregnancyDetailsDTO pregnancyDetails;
     private DiabetesDetailsDTO diabetesDetails;

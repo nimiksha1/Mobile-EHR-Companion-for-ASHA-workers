@@ -1,6 +1,8 @@
 package com.example.EHR.controller;
 
+import java.security.Principal;
 import java.util.List;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import com.example.EHR.entity.Patient;
 import com.example.EHR.service.PatientService;
@@ -20,6 +22,12 @@ public class PatientController {
     @GetMapping
     public List<Patient> list(){
         return service.getAll();
+    }
+
+    @GetMapping("/asha")
+    @PreAuthorize("hasRole('ASHA')")
+    public List<Patient> getPatientsForAsha(Principal principal) {
+        return service.getPatientsByAsha(principal.getName());
     }
 
     @PutMapping("/{id}")

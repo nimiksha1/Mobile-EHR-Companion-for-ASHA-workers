@@ -3,6 +3,7 @@ package com.example.EHR.controller;
 import com.example.EHR.dto.PatientRequest;
 import com.example.EHR.dto.PatientResponse;
 import com.example.EHR.dto.PrescriptionRequest;
+import com.example.EHR.dto.UserResponseDTO;
 import com.example.EHR.entity.Patient;
 import com.example.EHR.entity.Prescription;
 import com.example.EHR.service.DoctorService;
@@ -17,6 +18,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import java.time.LocalDate;
+import java.util.List;
 
 @RestController
 @RequestMapping("/api/doctor")
@@ -24,6 +26,12 @@ import java.time.LocalDate;
 public class DoctorController {
     
     private final DoctorService doctorService;
+    
+    @GetMapping("/asha-workers")
+    public ResponseEntity<List<UserResponseDTO>> getAshaWorkers() {
+        List<UserResponseDTO> ashaWorkers = doctorService.getAshaWorkers();
+        return ResponseEntity.ok(ashaWorkers);
+    }
     
     @PostMapping("/patient")
     public ResponseEntity<Patient> createPatient(
@@ -68,5 +76,13 @@ public class DoctorController {
             @RequestParam Long doctorId) {
         Prescription prescription = doctorService.createPrescription(patientId, request, doctorId);
         return ResponseEntity.status(HttpStatus.CREATED).body(prescription);
+    }
+    
+    @PutMapping("/patients/{patientId}/prescription")
+    public ResponseEntity<PatientResponse> updatePatientPrescription(
+            @PathVariable Long patientId,
+            @RequestBody String prescription) {
+        PatientResponse updated = doctorService.updatePrescription(patientId, prescription);
+        return ResponseEntity.ok(updated);
     }
 }

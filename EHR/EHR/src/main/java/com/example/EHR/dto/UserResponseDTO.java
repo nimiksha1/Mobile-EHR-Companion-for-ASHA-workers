@@ -10,7 +10,7 @@ public class UserResponseDTO {
     private String name;
     private String email;
     private String phone;
-    private UserRole role;
+    private String role;
     private Boolean active;
     private Long assignedDoctorId;
     private String assignedDoctorName;

@@ -16,6 +16,7 @@ public class PatientResponse {
     private String phone;
     private String address;
     private String patientType;
+    private String prescription;
     private String assignedAshaName;
     private Long assignedAshaId;
     private String createdByDoctorName;
@@ -60,6 +61,7 @@ public class PatientResponse {
         response.setPhone(patient.getPhone());
         response.setAddress(patient.getAddress());
         response.setPatientType(patient.getPatientType().name());
+        response.setPrescription(patient.getPrescription());
         
         if (patient.getAssignedAsha() != null) {
             response.setAssignedAshaName(patient.getAssignedAsha().getName());
