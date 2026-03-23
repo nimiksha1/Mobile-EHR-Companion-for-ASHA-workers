@@ -1,14 +1,23 @@
-import { useData } from '../context/DataContext';
-import { useAuth } from '../context/AuthContext';
+import { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import Navbar from '../components/Navbar';
 import Sidebar from '../components/Sidebar';
 import './AssignedPatients.css';
 
 const AssignedPatients = () => {
-  const { patients } = useData();
-  const { user } = useAuth();
+  const [assignedPatients, setAssignedPatients] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const navigate = useNavigate();
 
-  const assignedPatients = patients.filter(p => p.assignedAsha === user?.name);
+  useEffect(() => {
+    const token = localStorage.getItem('token');
+    fetch('http://localhost:8080/api/patients/asha', {
+      headers: { 'Authorization': `Bearer ${token}` }
+    })
+      .then(res => res.json())
+      .then(data => setAssignedPatients(Array.isArray(data) ? data : []))
+      .finally(() => setLoading(false));
+  }, []);
 
   return (
     <div className="app-layout">
@@ -21,7 +30,9 @@ const AssignedPatients = () => {
             <p>Read-only view of patients assigned to you</p>
           </div>
 
-          {assignedPatients.length === 0 ? (
+          {loading ? (
+            <p>Loading...</p>
+          ) : assignedPatients.length === 0 ? (
             <div className="empty-state">
               <p>No patients assigned yet.</p>
             </div>

@@ -8,6 +8,7 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import java.security.Principal;
 import java.util.List;
 
 @RestController
@@ -19,8 +20,8 @@ public class AshaController {
     private final AshaService ashaService;
     
     @GetMapping("/assigned-patients")
-    public ResponseEntity<List<PatientResponse>> getAssignedPatients() {
-        List<PatientResponse> patients = ashaService.getAllPatients();
+    public ResponseEntity<List<PatientResponse>> getAssignedPatients(Principal principal) {
+        List<PatientResponse> patients = ashaService.getAssignedPatientsByEmail(principal.getName());
         return ResponseEntity.ok(patients);
     }
     

@@ -21,43 +21,33 @@ public class AshaService {
     private final PregnancyDetailsRepository pregnancyDetailsRepository;
     private final DiabetesDetailsRepository diabetesDetailsRepository;
     
-    public List<PatientResponse> getAllPatients() {
-        List<Patient> patients = patientRepository.findAll();
-        
-        return patients.stream().map(patient -> {
-            PregnancyDetails pregnancyDetails = null;
-            DiabetesDetails diabetesDetails = null;
-            
-            if (patient.getPatientType() == Patient.PatientType.PREGNANCY) {
-                pregnancyDetails = pregnancyDetailsRepository.findByPatient(patient).orElse(null);
-            } else {
-                diabetesDetails = diabetesDetailsRepository.findByPatient(patient).orElse(null);
-            }
-            
-            return PatientResponse.fromEntity(patient, pregnancyDetails, diabetesDetails);
-        }).collect(Collectors.toList());
-    }
-    
-    public List<PatientResponse> getAssignedPatients(Long ashaId) {
-        User asha = userRepository.findById(ashaId)
+    public List<PatientResponse> getAssignedPatientsByEmail(String email) {
+        User asha = userRepository.findByEmail(email)
             .orElseThrow(() -> new RuntimeException("ASHA worker not found"));
-        
         if (asha.getRole() != User.UserRole.ASHA) {
             throw new UnauthorizedException("Only ASHA workers can access this endpoint");
         }
-        
-        List<Patient> patients = patientRepository.findByAssignedAsha(asha);
-        
+        return buildPatientResponses(patientRepository.findByAssignedAsha(asha));
+    }
+
+    public List<PatientResponse> getAssignedPatients(Long ashaId) {
+        User asha = userRepository.findById(ashaId)
+            .orElseThrow(() -> new RuntimeException("ASHA worker not found"));
+        if (asha.getRole() != User.UserRole.ASHA) {
+            throw new UnauthorizedException("Only ASHA workers can access this endpoint");
+        }
+        return buildPatientResponses(patientRepository.findByAssignedAsha(asha));
+    }
+
+    private List<PatientResponse> buildPatientResponses(List<Patient> patients) {
         return patients.stream().map(patient -> {
             PregnancyDetails pregnancyDetails = null;
             DiabetesDetails diabetesDetails = null;
-            
             if (patient.getPatientType() == Patient.PatientType.PREGNANCY) {
                 pregnancyDetails = pregnancyDetailsRepository.findByPatient(patient).orElse(null);
             } else {
                 diabetesDetails = diabetesDetailsRepository.findByPatient(patient).orElse(null);
             }
-            
             return PatientResponse.fromEntity(patient, pregnancyDetails, diabetesDetails);
         }).collect(Collectors.toList());
     }

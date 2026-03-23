@@ -2,8 +2,12 @@ package com.example.EHR.controller;
 
 import java.security.Principal;
 import java.util.List;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
+import com.example.EHR.dto.PatientDTO;
 import com.example.EHR.entity.Patient;
 import com.example.EHR.service.PatientService;
 import lombok.RequiredArgsConstructor;
@@ -12,6 +16,7 @@ import lombok.RequiredArgsConstructor;
 @RequestMapping("/api/patients")
 @RequiredArgsConstructor
 public class PatientController {
+    private static final Logger logger = LoggerFactory.getLogger(PatientController.class);
     private final PatientService service;
 
     @PostMapping
@@ -25,9 +30,18 @@ public class PatientController {
     }
 
     @GetMapping("/asha")
-    @PreAuthorize("hasRole('ASHA')")
-    public List<Patient> getPatientsForAsha(Principal principal) {
-        return service.getPatientsByAsha(principal.getName());
+    public ResponseEntity<List<PatientDTO>> getPatientsForAsha(Principal principal) {
+        String email = principal.getName();
+        logger.info("ASHA patients request for: {}", email);
+        List<PatientDTO> patients = service.getPatientsByAsha(email);
+        logger.info("Found {} patients for ASHA: {}", patients.size(), email);
+        return ResponseEntity.ok(patients);
+    }
+    
+    @GetMapping("/asha/{ashaId}")
+    @PreAuthorize("hasRole('DOCTOR') or hasRole('ADMIN')")
+    public List<PatientDTO> getPatientsByAshaId(@PathVariable Long ashaId) {
+        return service.getPatientsByAshaId(ashaId);
     }
 
     @PutMapping("/{id}")
